@@ -1,0 +1,127 @@
+---
+description: "Naming conventions, file placement, and code quality standards for the project"
+alwaysApply: true
+context:
+  - PROJECT_STRUCTURE.md
+---
+
+# 🧩 Naming, Structure, and Quality Rules
+
+This rule ensures **consistency, clarity, and maintainability** across the entire project.
+
+Cursor must always:
+
+- Follow the **naming and folder structure** defined in `/PROJECT_STRUCTURE.md`.  
+- Verify that files are created in their proper locations.  
+- Maintain code quality and prevent logic leakage between layers.
+
+---
+
+## 🧱 1 · File Naming Conventions
+
+| Type | Convention | Example |
+|------|-------------|----------|
+| Component | PascalCase | `ProductCard.tsx` |
+| Hook | camelCase (starts with `use`) | `useCheckout.ts` |
+| Container | PascalCase + `Container` suffix | `CheckoutContainer.tsx` |
+| Service | lowercase domain | `checkout.ts` |
+| Adapter | PascalCase + `Adapter` suffix | `checkoutAdapter.ts` |
+| GraphQL Query | `<feature>.query.ts` | `orders.query.ts` |
+| GraphQL Fragment | `<feature>.fragment.ts` | `product.fragment.ts` |
+| GraphQL Mutation | `<feature>.mutation.ts` | `checkout.mutation.ts` |
+| Redux Slice | camelCase + `Slice.ts` | `cartSlice.ts` |
+
+**Rules:**
+
+- Hooks must always begin with `use`.  
+- Components must be PascalCase and end with `.tsx`.  
+- GraphQL operations must be suffixed with `.query.ts`, `.mutation.ts`, or `.fragment.ts`.  
+- Adapters must end with `Adapter.ts`.  
+- Avoid generic file names (e.g., `index.ts` for logic files).  
+
+---
+
+## 🧭 2 · File Placement Rules
+
+| Folder | What Belongs Here | Examples |
+|---------|------------------|-----------|
+| `/src/app/` | Route segments + Containers | `home/page.tsx`, `HomeContainer.tsx` |
+| `/src/components/` | Atomic UI only (no logic) | `atoms/Button.tsx`, `organisms/ProductList.tsx` |
+| `/src/hooks/` | Reusable logic hooks | `useCart.ts`, `useProducts.ts` |
+| `/src/services/` | Data fetching, GraphQL, adapters, and APIs | `checkout.ts`, `graphql/queries/orders.query.ts` |
+| `/src/store/` | Redux or Zustand state | `cartSlice.ts`, `authSlice.ts` |
+| `/src/utils/` | Helper utilities (no side effects) | `formatCurrency.ts`, `handleError.ts` |
+| `/src/styles/` | Global and theme styles | `globals.css`, `theme.ts` |
+
+**Rules:**
+
+1. No business logic inside `/components/`.  
+2. No API calls inside `/hooks/`.  
+3. Only `/services/` may access GraphQL or REST clients.  
+4. `/app/` containers should never directly call APIs — use hooks instead.  
+5. Avoid circular imports between folders.  
+
+---
+
+## 🧩 3 · Code Quality Standards
+
+- Use **TypeScript strict mode** in `tsconfig.json`.  
+- Prefer **async/await** instead of `.then()` chains.  
+- Handle all loading and error states gracefully in hooks and containers.  
+- Keep functions small and single-purpose.  
+- Use explicit return types for all exported functions.  
+- Ensure GraphQL operations have clear variable typings.  
+- Avoid deeply nested conditionals — use early returns instead.  
+
+---
+
+## 🧠 4 · Linting & Formatting Guidelines
+
+- Follow **ESLint + Prettier** configuration.  
+- Indentation: 2 spaces.  
+- Line length: 100 characters max.  
+- Imports:
+  - External packages first.  
+  - Then absolute imports (`@/hooks`, `@/components`, etc.).  
+  - Relative imports last.  
+- Always sort and group imports automatically.  
+- Always end files with a newline.
+
+---
+
+## 🧩 5 · Cursor Behavior Rules
+
+When Cursor generates or edits code:
+
+1. **Check existing files first** before creating new ones.  
+   - If a hook or service already exists, prefer reusing or extending it.  
+2. **Respect boundaries:**
+   - Don’t create logic inside components.  
+   - Don’t put UI inside services or hooks.  
+3. **Ask before replacing** or overwriting an existing file.  
+4. **Maintain consistent comments:**
+   - Each generated file should include a short header:
+     ```ts
+     // Role: [Hook | Container | Service | Adapter]
+     // Purpose: [Brief description]
+     ```
+5. **Follow architecture context:**
+   - Always re-read `/PROJECT_STRUCTURE.md` before suggesting new file paths.
+6. **Ensure naming alignment:**
+   - Filenames, exports, and folder names must match conventions above.
+
+---
+
+## 🧩 6 · General Architectural Enforcement
+
+Cursor must ensure that:
+
+- Every new feature adheres to the same folder structure used across existing ones.  
+- Containers delegate all data handling to hooks.  
+- Hooks delegate all API or Saleor operations to `/services/`.  
+- `/services/` modules call adapters before returning processed data.  
+- Components receive only clean, ready-to-render props.  
+
+---
+
+> **Reference:** `/PROJECT_STRUCTURE.md` defines the official architecture and is always the source of truth for naming, placement, and layering.

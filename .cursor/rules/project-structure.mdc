@@ -1,0 +1,79 @@
+---
+description: Defines the global architecture and folder responsibilities for the project
+alwaysApply: true
+context:
+  - PROJECT_STRUCTURE.md
+---
+
+# 🏗️ Project Structure Rules
+
+This project follows a **Next.js 15 + React 19 + Saleor (GraphQL)** architecture.
+
+Cursor must always refer to `/PROJECT_STRUCTURE.md`  
+for folder purposes, naming conventions, and allowed responsibilities.
+
+---
+
+## 🧱 Folder Responsibilities
+
+| Folder | Responsibility |
+|--------|----------------|
+| `src/app/` | Next.js App Router: feature routes + container components. No business logic or API calls. |
+| `src/components/` | Atomic UI components — pure view layer (atoms, molecules, organisms, layouts). |
+| `src/hooks/` | Logic layer — React hooks for fetching, transforming, or managing data. |
+| `src/services/` | Data layer — GraphQL queries, mutations, adapters, and API clients. |
+| `src/store/` | Global app state (Redux or Zustand). |
+| `src/utils/` | Generic helpers (formatters, validators, loggers) — no side effects. |
+| `src/styles/` | Global and theme styling. |
+
+---
+
+## 🧩 Architectural Rules
+
+1. **Components**  
+   - Must never contain API calls or data fetching.  
+   - Receive data and handlers via props.  
+   - Contain only presentational logic.
+
+2. **Hooks**  
+   - Live under `/hooks/`.  
+   - Can use `/services` for data fetching or mutations.  
+   - Must not directly use GraphQL or REST inside components.
+
+3. **Services**  
+   - Live under `/services/`.  
+   - Handle GraphQL operations, REST requests, and data transformations.  
+   - Must import adapters to normalize Saleor data before returning to hooks.
+
+4. **Adapters / Transformers**  
+   - Live under `/services/adapters/`.  
+   - Map raw Saleor or API data → UI-friendly shapes.  
+   - Should be used by all service modules that fetch remote data.
+
+5. **GraphQL Fragments, Queries, and Mutations**  
+   - Live under `/services/graphql/`.  
+   - Fragments define reusable field sets.  
+   - Queries handle read operations.  
+   - Mutations handle write operations.  
+   - Each query should import relevant fragments.
+
+6. **Containers**  
+   - Reside inside each feature folder (e.g., `/app/home/HomeContainer.tsx`).  
+   - Act as “smart components” that connect hooks → UI.  
+   - No direct data transformations or API calls inside containers.
+
+---
+
+## 🧠 AI / Cursor Enforcement
+
+Whenever Cursor generates or edits code:
+
+1. **Consult** `PROJECT_STRUCTURE.md` before deciding where to place new files.  
+2. **Respect** the boundaries between UI, logic, data, and state layers.  
+3. **Reuse existing files** instead of creating duplicates.  
+4. **Ask the user for confirmation** before overwriting or duplicating logic.  
+5. **Keep naming conventions** consistent with the architecture document.
+
+---
+
+> 📘 Reference: The file `/PROJECT_STRUCTURE.md` is the single source of truth for all folder, naming, and separation rules.

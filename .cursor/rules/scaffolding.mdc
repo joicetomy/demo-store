@@ -1,0 +1,140 @@
+---
+description: Rules for scaffolding new features and ensuring reuse of existing modules
+alwaysApply: false
+context:
+  - PROJECT_STRUCTURE.md
+---
+
+# ⚙️ Feature Scaffolding & Reuse Rules
+
+This rule defines how new features (like **orders**, **wishlist**, or **profile**)  
+must be generated and integrated into the existing **Next.js 15 + React 19 + Saleor (GraphQL)** architecture.
+
+Cursor must:
+
+- **Read** `/PROJECT_STRUCTURE.md` before generating any files.  
+- **Check for existing** code before creating new modules.  
+- **Respect** folder boundaries and naming conventions.
+
+---
+
+## 🧭 Step 1 — Reuse Before Create
+
+Before scaffolding new files, **always search** for existing equivalents:
+
+1. **Check** `/src/app/<featureName>/`  
+   - If it exists → reuse or extend existing containers/pages.  
+2. **Check** `/src/services/<featureName>.ts`  
+   - If it exists → reuse or extend existing service logic.  
+3. **Check** `/src/hooks/use<FeatureName>.ts`  
+   - If it exists → modify or enhance instead of duplicating.  
+4. **Check** `/src/services/graphql/` for similar queries or fragments.  
+   - If similar data exists (e.g., `checkout` vs `orders`), reuse it.
+
+If duplication is unavoidable, **ask for confirmation** before creating new files.
+
+---
+
+## 🏗️ Step 2 — Standard Scaffold Structure
+
+If the feature is new, Cursor must generate:
+
+src/app/<featureName>/page.tsx
+src/app/<featureName>/<FeatureName>Container.tsx
+src/hooks/use<FeatureName>.ts
+src/services/<featureName>.ts
+src/services/graphql/fragments/<featureName>.fragment.ts
+src/services/graphql/queries/<featureName>.query.ts
+src/services/adapters/<featureName>Adapter.ts
+
+### 📘 Purpose Summary
+
+| File | Purpose |
+|------|----------|
+| `page.tsx` | Next.js route entry point — imports and renders the container. |
+| `<FeatureName>Container.tsx` | Connects hooks and UI; contains no data logic. |
+| `use<FeatureName>.ts` | React hook for fetching and state management. |
+| `<featureName>.ts` | Service layer — calls GraphQL and adapters. |
+| `<featureName>Adapter.ts` | Normalizes API → UI data. |
+| `<featureName>.fragment.ts` | GraphQL reusable field set. |
+| `<featureName>.query.ts` | GraphQL query composed of fragments. |
+
+---
+
+## 🧩 Step 3 — Naming Conventions
+
+| Type | Convention | Example |
+|------|-------------|----------|
+| Component | PascalCase | `OrderCard.tsx` |
+| Hook | camelCase (start with `use`) | `useOrders.ts` |
+| Container | PascalCase + `Container` | `OrdersContainer.tsx` |
+| Service | lowercase domain | `orders.ts` |
+| Adapter | PascalCase + `Adapter` | `orderAdapter.ts` |
+| GraphQL Query | `<feature>.query.ts` | `orders.query.ts` |
+| GraphQL Fragment | `<feature>.fragment.ts` | `order.fragment.ts` |
+
+---
+
+## 🧩 Step 4 — File Header Comments
+
+Each generated file must include a header describing its role:
+
+```ts
+// Role: Hook
+// Purpose: Fetch and manage order data from Saleor GraphQL API.
+🧩 Step 5 — Container Pattern
+
+
+Use this base pattern when generating containers:
+'use client';
+import { use<FeatureName> } from '@/hooks/use<FeatureName>';
+import { <FeatureName>List } from '@/components/organisms/<FeatureName>List';
+import { Loader } from '@/components/atoms/Loader';
+
+export default function <FeatureName>Container() {
+  const { data, loading } = use<FeatureName>();
+
+  if (loading) return <Loader />;
+  return <<FeatureName>List items={data} />;
+}
+🧩 Step 6 — Hook Pattern
+Base pattern for /hooks/use<FeatureName>.ts:
+'use client';
+import { useState, useEffect } from 'react';
+import { get<FeatureName>Data } from '@/services/<featureName>';
+
+export function use<FeatureName>() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    get<FeatureName>Data()
+      .then(setData)
+      .finally(() => setLoading(false));
+  }, []);
+
+  return { data, loading };
+}
+🧩 Step 7 — Pre-Generation Validation
+Before generating anything new, Cursor must:
+Search /services/graphql for existing queries/fragments.
+Search /services/adapters for existing transformers.
+Search /hooks for similar logic.
+Reuse or extend existing code when possible.
+Ask for user confirmation if overlap is detected.
+
+
+🧩 Step 8 — Behavior Summary for Cursor
+When receiving a request such as:
+“Create a new feature called wishlist.”
+Cursor should:
+Load PROJECT_STRUCTURE.md
+Search for existing related files
+Scaffold only what’s missing
+Follow naming and folder conventions
+Insert header comments
+Maintain clean separation of UI / logic / data
+📘 Reference: /PROJECT_STRUCTURE.md is the single source of truth for structure and naming rules.
+
+---
